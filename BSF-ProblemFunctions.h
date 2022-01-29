@@ -12,6 +12,8 @@ void PC_bsf_CopyParameter(
 	PT_bsf_parameter_T* parameterOutP
 ); 
 void PC_bsf_Init(
+//	int argc,
+//	char* argv[],
 	bool* success
 );
 void PC_bsf_IterOutput(

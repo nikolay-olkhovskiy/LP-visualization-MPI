@@ -8,6 +8,9 @@
 *.vcxproj
 *.vcxproj.filters
 
+#Jupyter Notebook files
+*.ipynb
+
 # User-specific files
 *.rsuser
 *.suo

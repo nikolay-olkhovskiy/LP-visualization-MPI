@@ -226,7 +226,7 @@ void PC_bsf_IterOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_
 	cout << "Z coordinates:\t";
 	copy(begin(PD_z), end(PD_z), ostream_iterator<PT_float_T>(cout, " "));
 	cout << endl;
-	cout << "Field distance:\t" << sqrt(pow(floatsToValarray(parameter.receptivePoint) - PD_z, 2.).sum()) << endl;
+	cout << "Field distance:\t" << sqrt(pow(floatsToValarray(parameter.receptivePoint) - PD_z, 2.0f).sum()) << endl;
 	cout << "Receptive field rank:\t" << PP_ETA * PP_DELTA << endl;
 //	system("pause");
 }
@@ -330,7 +330,7 @@ inline void basis_Init() {
 	int j;
 	PT_float_T length;
 	PT_float_T tailSum;
-	PT_vector_T PD_c2 = pow(PD_c, 2.);
+	PT_vector_T PD_c2 = pow(PD_c, 2.0f);
 	PD_E.resize(PD_n);
 	PD_E[0] = PD_c;
 	for (int i = 1; i < PD_n; i++) {
@@ -351,13 +351,13 @@ inline void basis_Init() {
 			PD_E[i][i - 1] = (-1. * tailSum) / PD_c[i - 1]; //Possible division by zero!
 			for (; j < PD_n; j++) { PD_E[i][j] = PD_c[j]; }
 		}
-		length = sqrt(pow(PD_E[i], 2.).sum());
+		length = sqrt(pow(PD_E[i], 2.0f).sum());
 		PD_E[i] /= length;
 	}
 }
 inline void basis_Print() {
 	for (int i = 0; i < PD_E.size(); i++) {
-		copy(begin(PD_E[i]), end(PD_E[i]), ostream_iterator<PT_float_T>(cout, " "));
+		copy(std::begin(PD_E[i]), std::end(PD_E[i]), ostream_iterator<PT_float_T>(cout, " "));
 		cout << endl;
 	}
 }
@@ -375,13 +375,13 @@ inline void G(PT_bsf_parameter_T *parameter) {
 	}
 	tempPoint = PD_z;
 	for (int j = 1; j < PD_n; j++) {
-		tempPoint += PD_E[j] * (i[j - 1] * PP_DELTA - PP_ETA * PP_DELTA);
+		tempPoint += PD_E[j] * (float)(i[j - 1] * PP_DELTA - PP_ETA * PP_DELTA);
 	}
 	for(int i = 0; i < PD_n; i++)
 		parameter->receptivePoint[i] = tempPoint[i];
 };
 inline bool parameterOutOfRetina(PT_bsf_parameter_T* parameter) {
-	PT_float_T distanceToZ = sqrt(pow(floatsToValarray(parameter->receptivePoint) - PD_z, 2.).sum());
+	PT_float_T distanceToZ = sqrt(pow(floatsToValarray(parameter->receptivePoint) - PD_z, 2.0f).sum());
 	return distanceToZ > PP_ETA * PP_DELTA;
 }
 
@@ -400,5 +400,5 @@ inline PT_point_T targetProjection(int i, PT_point_T x) {
 
 // Distance from projection to retina rho_c(x)
 inline PT_float_T targetDistance(PT_point_T x) {
-	return (PD_c * (PD_z - x)).sum() / sqrt(pow(PD_c, 2.).sum());
+	return (PD_c * (PD_z - x)).sum() / sqrt(pow(PD_c, 2.0f).sum());
 }

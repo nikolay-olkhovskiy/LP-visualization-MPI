@@ -79,6 +79,11 @@ void PC_bsf_Init(bool* success) {
 	basis_Init();
 
 	PD_K = powf(2 * PP_ETA + 1, PD_n - 1);
+
+	PD_z.resize(PD_n);
+	PD_z[0] = 0.0f;
+	PD_z[1] = 0.0f;
+	PD_z[2] = 200.0f;
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -221,10 +226,10 @@ void PC_bsf_IterOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_
 	cout << "------------------ " << BSF_sv_iterCounter << " ------------------" << endl;
 	cout << "Point number:\t" << parameter.pointNo << endl;
 	cout << "Point coordinates:\t";
-	copy(begin(parameter.receptivePoint), end(parameter.receptivePoint), ostream_iterator<PT_float_T>(cout, " "));
+	copy(parameter.receptivePoint, parameter.receptivePoint + PD_n, ostream_iterator<PT_float_T>(cout, " "));
 	cout << endl;
 	cout << "Z coordinates:\t";
-	copy(begin(PD_z), end(PD_z), ostream_iterator<PT_float_T>(cout, " "));
+	print_Point(PD_z);
 	cout << endl;
 	cout << "Field distance:\t" << sqrt(pow(floatsToValarray(parameter.receptivePoint) - PD_z, 2.0f).sum()) << endl;
 	cout << "Receptive field rank:\t" << PP_ETA * PP_DELTA << endl;
@@ -336,7 +341,7 @@ inline void basis_Init() {
 	for (int i = 1; i < PD_n; i++) {
 		PD_E[i].resize(PD_n);
 		for(j = 0; j < i; j++)	PD_E[i][j] = 0;
-		tailSum = accumulate(begin(PD_c2) + i, end(PD_c2), 0.);
+		tailSum = vector_Sum(PD_c2, i);
 		if (tailSum == 0) {
 			PD_E[i][i - 1] = 0;
 			PD_E[i][i] = 1;
@@ -355,11 +360,29 @@ inline void basis_Init() {
 		PD_E[i] /= length;
 	}
 }
+inline void print_Point(PT_point_T x) {
+	int N = x.size();
+	for (int i = 0; i < N; i++)
+		cout << x[i] << " ";
+}
+inline void print_Vector(PT_vector_T x) {
+	int N = x.size();
+	for (int i = 0; i < N; i++)
+		cout << x[i] << " ";
+}
 inline void basis_Print() {
 	for (int i = 0; i < PD_E.size(); i++) {
-		copy(std::begin(PD_E[i]), std::end(PD_E[i]), ostream_iterator<PT_float_T>(cout, " "));
+		print_Vector(PD_E[i]);
 		cout << endl;
 	}
+}
+inline PT_float_T vector_Sum(PT_vector_T v, int start) {
+	PT_float_T result = 0.0f;
+	int N = v.size();
+	for (int i = start; i < N; i++) {
+		result += v[i];
+	}
+	return result;
 }
 inline void G(PT_bsf_parameter_T *parameter) {
 	PT_point_T tempPoint;

@@ -10,7 +10,10 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 //====================== Problem Functions ===========================
 inline PT_point_T floatsToValarray(PT_float_T arr[]);
 inline void basis_Init();
+inline void print_Point(PT_point_T x);
+inline void print_Vector(PT_vector_T x);
 inline void basis_Print();
+inline PT_float_T vector_Sum(PT_vector_T v, int start);
 inline void G(PT_bsf_parameter_T* parameter);
 inline bool parameterOutOfRetina(PT_bsf_parameter_T* parameter);
 

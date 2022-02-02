@@ -16,12 +16,12 @@ using namespace std;
 void PC_bsf_Init(bool* success) {
 	FILE* stream;
 	PT_float_T buf;
-	
+	const char* lppFile;
 	// ------------- Load LPP data -------------------
 
 	PD_lppFile = PP_PATH;
 	PD_lppFile += PP_LPP_FILE;
-	const char* lppFile = PD_lppFile.c_str();
+	lppFile = PD_lppFile.c_str();
 	stream = fopen(lppFile, "r");
 	if (stream == NULL) {
 		if (BSF_sv_mpiRank == BSF_sv_mpiMaster)
@@ -76,14 +76,37 @@ void PC_bsf_Init(bool* success) {
 	}
 	fclose(stream);
 
+	// ------------- Load target point coordinates -------------------
+
+	PD_lppFile = PP_PATH;
+	PD_lppFile += PP_INPUT_FILE;
+	lppFile = PD_lppFile.c_str();
+	stream = fopen(lppFile, "r");
+	if (stream == NULL) {
+		if (BSF_sv_mpiRank == BSF_sv_mpiMaster)
+			cout << "Failure of opening file '" << lppFile << "'.\n";
+		*success = false;
+		//		system("pause");
+		return;
+	}
+
+	PD_z.resize(PD_n);
+	for (int i = 0; i < PD_n; i++) {
+		if (fscanf(stream, "%f", &buf) == 0) {
+			if (BSF_sv_mpiRank == BSF_sv_mpiMaster)
+				cout << "Unexpected end of file" << endl;
+			*success = false;
+			//				system("pause");
+			return;
+		}
+		PD_z[i] = buf;
+	}
+
+	fclose(stream);
+
 	basis_Init();
 
 	PD_K = powf(2 * PP_ETA + 1, PD_n - 1);
-
-	PD_z.resize(PD_n);
-	PD_z[0] = 0.0f;
-	PD_z[1] = 0.0f;
-	PD_z[2] = 200.0f;
 }
 
 void PC_bsf_SetListSize(int* listSize) {

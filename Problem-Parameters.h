@@ -18,6 +18,8 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 #define PP_PATH		"C:/Users/Akella/source/repos/nikolay-olkhovskiy/LP-visualization-MPI/"	// Working directory of the application
 #define PP_LPP_FILE	"input_example.txt"	// File with initial data
 #define PP_OUT_FILE "image.txt"	// File with output results
+#define PP_PICTURE_FILE	"picture.txt" //File with coordinates suitable to display
+#define PP_PICTURE_OUT			// Flag to create additional file with image points coordinates
 
 //-------------------------- Macroses ---------------------------
 #define PF_MIN(x,y) (x<y?x:y)

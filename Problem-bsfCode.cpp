@@ -102,7 +102,7 @@ void PC_bsf_MapF(PT_bsf_mapElem_T* mapElem, PT_bsf_reduceElem_T* reduceElem, int
 	if((PD_A[i] * PD_c).sum() > 0 && isInnerPoint(g))
 		reduceElem->objectiveDistance = targetDistance(targetProjection(i, g));
 	else
-		reduceElem->objectiveDistance = HUGE_VALF;
+		reduceElem->objectiveDistance = FLT_MAX;
 }
 
 void PC_bsf_MapF_1(PT_bsf_mapElem_T* mapElem, PT_bsf_reduceElem_T_1* reduceElem, int* success) {// For Job 1
@@ -125,7 +125,7 @@ void PC_bsf_ReduceF(PT_bsf_reduceElem_T* x, PT_bsf_reduceElem_T* y, PT_bsf_reduc
 	else if (isfinite(y->objectiveDistance))
 		z->objectiveDistance = y->objectiveDistance;
 	else
-		z->objectiveDistance = HUGE_VALF;
+		z->objectiveDistance = FLT_MAX;
 }
 
 void PC_bsf_ReduceF_1(PT_bsf_reduceElem_T_1* x, PT_bsf_reduceElem_T_1* y, PT_bsf_reduceElem_T_1* z) {	// For Job 1
@@ -259,12 +259,35 @@ void PC_bsf_IterOutput_3(PT_bsf_reduceElem_T_3* reduceResult, int reduceCounter,
 
 void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_bsf_parameter_T parameter,
 	double t) {	// For Job 0
+	FILE* stream;
+	const char* fileName;
 	int m = PD_I.size();
 	int n = PD_n;
+
+	//--------------- Output results -----------------//
 	PD_outFile = PP_PATH;
 	PD_outFile += PP_OUT_FILE;
-	const char* fileName = PD_outFile.c_str();
-	FILE* stream;
+	fileName = PD_outFile.c_str();
+	cout << "-----------------------------------" << endl;
+	stream = fopen(fileName, "w");
+	if (stream == NULL) {
+		cout << "Failure of opening file " << fileName << "!\n";
+		return;
+	}
+	fprintf(stream, "%d\n", m);
+
+	for (int i = 0; i < m; i++) {
+		fprintf(stream, "%.4f\n", PD_I[i].second);
+	}
+	fclose(stream);
+	cout << "Image is saved into file '" << fileName << "'." << endl;
+	cout << "-----------------------------------" << endl;
+#ifdef PP_PICTURE_OUT
+	//-------------- Output Coordinates -------------//
+	PD_outFile = PP_PATH;
+	PD_outFile += PP_PICTURE_FILE;
+	fileName = PD_outFile.c_str();
+	
 	cout << "-----------------------------------" << endl;
 	stream = fopen(fileName, "w");
 	if (stream == NULL) {
@@ -279,8 +302,9 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 		fprintf(stream, "%.4f\n", PD_I[i].second);
 	}
 	fclose(stream);
-	cout << "LPP is saved into file '" << fileName << "'." << endl;
+	cout << "Coordinates is saved into file '" << fileName << "'." << endl;
 	cout << "-----------------------------------" << endl;
+#endif
 //	system("pause");
 }
 

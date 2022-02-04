@@ -29,7 +29,6 @@ void PC_bsf_Init(bool* success) {
 		*success = false; 
 		return;
 	}
-	cout << lppFile << "is opened!" << endl;
 
 	if (fscanf(stream, "%d%d", &PD_m, &PD_n) == 0) { 
 		if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
@@ -37,8 +36,6 @@ void PC_bsf_Init(bool* success) {
 		*success = false; 
 		return; 
 	}
-	cout << "PD_m = " << PD_m << endl;
-	cout << "PD_n = " << PD_n << endl;
 
 	PD_A.resize(PD_m);
 	PD_b.resize(PD_m);
@@ -52,9 +49,7 @@ void PC_bsf_Init(bool* success) {
 //				system("pause");
 				return; 
 			}
-			cout << "Before writing to PD_A" << endl;
 			PD_A[i][j] = buf;
-			cout << "After writing to PD_A" << endl;
 		}
 		if (fscanf(stream, "%f", &buf) == 0) { 
 			if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
@@ -63,9 +58,7 @@ void PC_bsf_Init(bool* success) {
 //			system("pause");
 			return; 
 		}
-		cout << "Before writing to PD_b" << endl;
 		PD_b[i] = buf;
-		cout << "After writing to PD_b" << endl;
 	}
 
 	PD_c.resize(PD_n);
@@ -77,9 +70,7 @@ void PC_bsf_Init(bool* success) {
 //			system("pause");
 			return; 
 		}
-		cout << "Before writing to PD_c" << endl;
 		PD_c[j] = buf;
-		cout << "After writing to PD_c" << endl;
 	}
 	fclose(stream);
 
@@ -96,7 +87,6 @@ void PC_bsf_Init(bool* success) {
 		//		system("pause");
 		return;
 	}
-	cout << lppFile << "is opened!" << endl;
 
 	PD_z.resize(PD_n);
 	for (int i = 0; i < PD_n; i++) {
@@ -107,18 +97,13 @@ void PC_bsf_Init(bool* success) {
 			//				system("pause");
 			return;
 		}
-		cout << "Before writing to PD_z" << endl;
 		PD_z[i] = buf;
-		cout << "After writing to PD_z" << endl;
 	}
 
 	fclose(stream);
-	cout << "Before basis_Init()" << endl;
 	basis_Init();
-	cout << "After basis_Init()" << endl;
 
 	PD_K = (int)powf(2 * PP_ETA + 1, (PT_float_T)PD_n - 1);
-	cout << "Max points number = " << PD_K << endl;
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -362,6 +347,7 @@ void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 	parameter->pointNo = 0;
 	G(parameter);
 	while (parameterOutOfRetina(parameter)) {
+		cout << "pointNo = " << parameter->pointNo << endl;
 		parameter->pointNo += 1;
 		G(parameter);
 	}

@@ -9,6 +9,7 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 #include <cstdlib>
 #include <cstddef>
 #include <cstdio>
+#include <cfloat>
 #include <iomanip>
 #include <iostream>
 #include <iterator>

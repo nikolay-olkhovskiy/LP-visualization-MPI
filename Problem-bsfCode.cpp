@@ -325,7 +325,7 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 		fprintf(stream, "%.4f\n", PD_I[i].second);
 	}
 	fclose(stream);
-	cout << "Coordinates is saved into file '" << fileName << "'." << endl;
+	cout << "Coordinates are saved into file '" << fileName << "'." << endl;
 	cout << "-----------------------------------" << endl;
 #endif
 //	system("pause");

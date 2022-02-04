@@ -1,6 +1,6 @@
 /*==============================================================================
-Project: VaLiPro
-Theme: LPP Generator
+Project: Bulk Synchronous Farm (BSF)
+Theme: BSF Skeleton
 Module: BSF-ProblemFunctions.h (Predefined Problem Function Forwards)
 Author: Leonid B. Sokolinsky
 This source code is a part of BSF Skeleton (https://github.com/leonid-sokolinsky/BSF-skeleton)
@@ -12,6 +12,8 @@ void PC_bsf_CopyParameter(
 	PT_bsf_parameter_T* parameterOutP
 ); 
 void PC_bsf_Init(
+//	int argc,
+//	char* argv[],
 	bool* success
 );
 void PC_bsf_IterOutput(
@@ -142,11 +144,11 @@ void PC_bsf_ReduceF_3(
 	PT_bsf_reduceElem_T_3* y, 
 	PT_bsf_reduceElem_T_3* z
 );
-void PC_bsf_SetInitParameter(
-	PT_bsf_parameter_T* parameter
-);
 void PC_bsf_SetListSize(
 	int* listSize
+);
+void PC_bsf_SetInitParameter(
+	PT_bsf_parameter_T* parameter
 );
 void PC_bsf_SetMapListElem(
 	PT_bsf_mapElem_T* elem, 

@@ -418,7 +418,7 @@ inline void print_Vector(PT_vector_T x) {
 		cout << x[i] << " ";
 }
 inline void basis_Print() {
-	for (int i = 0; i < PD_E.size(); i++) {
+	for (int i = 0; i < (int)PD_E.size(); i++) {
 		print_Vector(PD_E[i]);
 		cout << endl;
 	}

@@ -1,6 +1,6 @@
 /*==============================================================================
-Project: VaLiPro
-Theme: LPP Generator
+Project: Bulk Synchronous Farm (BSF)
+Theme: BSF Cimmino
 Module: BSF-Code.cpp (Problem Independent Code)
 Prefix: BC
 Author: Leonid B. Sokolinsky
@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 	BC_MpiRun();
 
 	BD_success = true;
+//	PC_bsf_Init(argc, argv, &BD_success);
 	PC_bsf_Init(&BD_success);
 	MPI_Allreduce(&BD_success, &success, 1, MPI_UNSIGNED, MPI_LAND, MPI_COMM_WORLD);
 	if (!success) {
@@ -208,6 +209,7 @@ static void BC_MasterReduce() {
 			cout << "BC_MasterReduce Error: Undefined job type!" << endl;
 			break;
 		};
+	
 	MPI_Waitall(BD_numOfWorkers, BD_request, BD_status);
 
 	switch (BD_jobCase) {

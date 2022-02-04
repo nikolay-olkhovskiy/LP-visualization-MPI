@@ -400,7 +400,7 @@ inline void basis_Init() {
 			for (; j < PD_n; j++) { PD_E[i][j] = 0; }
 		}
 		else {
-			PD_E[i][i - 1] = (-1. * tailSum) / PD_c[i - 1]; //Possible division by zero!
+			PD_E[i][i - 1] = (PT_float_T)((-1. * tailSum) / PD_c[i - 1]); //Possible division by zero!
 			for (; j < PD_n; j++) { PD_E[i][j] = PD_c[j]; }
 		}
 		length = sqrt(pow(PD_E[i], 2.0f).sum());
@@ -408,12 +408,12 @@ inline void basis_Init() {
 	}
 }
 inline void print_Point(PT_point_T x) {
-	int N = x.size();
+	int N = (int)x.size();
 	for (int i = 0; i < N; i++)
 		cout << x[i] << " ";
 }
 inline void print_Vector(PT_vector_T x) {
-	int N = x.size();
+	int N = (int)x.size();
 	for (int i = 0; i < N; i++)
 		cout << x[i] << " ";
 }
@@ -425,7 +425,7 @@ inline void basis_Print() {
 }
 inline PT_float_T vector_Sum(PT_vector_T v, int start) {
 	PT_float_T result = 0.0f;
-	int N = v.size();
+	int N = (int)v.size();
 	for (int i = start; i < N; i++) {
 		result += v[i];
 	}
@@ -439,7 +439,7 @@ inline void G(PT_bsf_parameter_T *parameter) {
 
 	i.resize(PD_n - 1);
 	for (int j = PD_n - 1; j > 0; j--) {
-		dimensionPointsNumber = powf(2 * PP_ETA + 1, j - 1); //Possible overfilling!
+		dimensionPointsNumber = (PT_integer_T)powf(2 * PP_ETA + 1, (PT_float_T)j - 1); //Possible overfilling!
 		i[j - 1] = pointNo / dimensionPointsNumber;
 		pointNo = pointNo % dimensionPointsNumber;
 	}

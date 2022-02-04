@@ -27,7 +27,7 @@ void PC_bsf_Init(bool* success) {
 		if (BSF_sv_mpiRank == BSF_sv_mpiMaster)
 			cout << "Failure of opening file '" << lppFile << "'.\n";
 		*success = false; 
-//		system("pause");
+		cout << lppFile << "is opened!" << endl;
 		return;
 	}
 
@@ -35,7 +35,8 @@ void PC_bsf_Init(bool* success) {
 		if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
 			cout << "Unexpected end of file" << endl; 
 		*success = false; 
-//		system("pause");
+		cout << "PD_m = " << PD_m << endl;
+		cout << "PD_n = " << PD_n << endl;
 		return; 
 	}
 
@@ -51,7 +52,9 @@ void PC_bsf_Init(bool* success) {
 //				system("pause");
 				return; 
 			}
+			cout << "Before writing to PD_A" << endl;
 			PD_A[i][j] = buf;
+			cout << "After writing to PD_A" << endl;
 		}
 		if (fscanf(stream, "%f", &buf) == 0) { 
 			if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
@@ -60,7 +63,9 @@ void PC_bsf_Init(bool* success) {
 //			system("pause");
 			return; 
 		}
+		cout << "Before writing to PD_b" << endl;
 		PD_b[i] = buf;
+		cout << "After writing to PD_b" << endl;
 	}
 
 	PD_c.resize(PD_n);
@@ -72,7 +77,9 @@ void PC_bsf_Init(bool* success) {
 //			system("pause");
 			return; 
 		}
+		cout << "Before writing to PD_c" << endl;
 		PD_c[j] = buf;
+		cout << "Before writing to PD_c" << endl;
 	}
 	fclose(stream);
 

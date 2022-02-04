@@ -347,6 +347,7 @@ void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 	parameter->pointNo = 0;
 	cout << "pointNo = " << parameter->pointNo << endl;
 	G(parameter);
+	cout << "After first G()" << endl;
 	while (parameterOutOfRetina(parameter)) {
 		cout << "pointNo = " << parameter->pointNo << endl;
 		parameter->pointNo += 1;
@@ -445,6 +446,8 @@ inline void G(PT_bsf_parameter_T *parameter) {
 		pointNo = pointNo % dimensionPointsNumber;
 	}
 	tempPoint = PD_z;
+	cout << "Inside G. tempPoint size: " << tempPoint.size() << endl;
+	cout << "Inside G. PD_z size: " << PD_z.size() << endl;
 	for (int j = 1; j < PD_n; j++) {
 		tempPoint += PD_E[j] * (float)(i[j - 1] * PP_DELTA - PP_ETA * PP_DELTA);
 	}

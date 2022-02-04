@@ -345,6 +345,7 @@ void PC_bsf_ProblemOutput_3(PT_bsf_reduceElem_T_3* reduceResult, int reduceCount
 
 void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 	parameter->pointNo = 0;
+	cout << "pointNo = " << parameter->pointNo << endl;
 	G(parameter);
 	while (parameterOutOfRetina(parameter)) {
 		cout << "pointNo = " << parameter->pointNo << endl;
@@ -436,7 +437,9 @@ inline void G(PT_bsf_parameter_T *parameter) {
 	int pointNo = parameter->pointNo;
 
 	i.resize(PD_n - 1);
+	cout << "Inside G. Num of E vectors = " << i.size() << endl;
 	for (int j = PD_n - 1; j > 0; j--) {
+		cout << "j = " << j << endl;
 		dimensionPointsNumber = (PT_integer_T)powf(2 * PP_ETA + 1, (PT_float_T)j - 1); //Possible overfilling!
 		i[j - 1] = pointNo / dimensionPointsNumber;
 		pointNo = pointNo % dimensionPointsNumber;

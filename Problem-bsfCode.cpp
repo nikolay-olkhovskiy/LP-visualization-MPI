@@ -106,7 +106,7 @@ void PC_bsf_Init(bool* success) {
 
 	basis_Init();
 
-	PD_K = powf(2 * PP_ETA + 1, PD_n - 1);
+	PD_K = (int)powf(2 * PP_ETA + 1, (PT_float_T)PD_n - 1);
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -284,7 +284,7 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	double t) {	// For Job 0
 	FILE* stream;
 	const char* fileName;
-	int m = PD_I.size();
+	int m = (int)PD_I.size();
 	int n = PD_n;
 
 	//--------------- Output results -----------------//

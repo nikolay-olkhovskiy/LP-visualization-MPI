@@ -17,6 +17,8 @@ void PC_bsf_Init(bool* success) {
 	FILE* stream;
 	PT_float_T buf;
 	const char* lppFile;
+	
+	srand((unsigned)time(NULL) * (BSF_sv_mpiRank + 10));
 	// ------------- Load LPP data -------------------
 
 	PD_lppFile = PP_PATH;
@@ -283,6 +285,10 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	const char* fileName;
 	int m = (int)PD_I.size();
 	int n = PD_n;
+
+	cout << "=============================================" << endl;
+	cout << "Time: " << t << endl;
+	cout << "Iterations: " << BSF_sv_iterCounter << endl;
 
 	//--------------- Output results -----------------//
 	PD_outFile = PP_PATH;

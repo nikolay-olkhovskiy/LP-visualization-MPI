@@ -39,10 +39,17 @@ void PC_bsf_Init(bool* success) {
 		return; 
 	}
 
-	PD_A.resize(PD_m);
-	PD_b.resize(PD_m);
+	if (PD_m > PP_MAX_M || PD_n > PP_MAX_N) {
+		if (BSF_sv_mpiRank == BSF_sv_mpiMaster) {
+			cout << "Wrong problem parameters!" << endl;
+			cout << "Number of inequalities: " << PD_m << " (max: " << PP_MAX_M << ")." << endl;
+			cout << "Number of dimensions: " << PD_n << " (max: " << PP_MAX_N << ")." << endl;
+		}
+		*success = false;
+		return;
+	}
+
 	for (int i = 0; i < PD_m; i++) {
-		PD_A[i].resize(PD_n);
 		for (int j = 0; j < PD_n; j++) {
 			if (fscanf(stream, "%f", &buf) == 0) { 
 				if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
@@ -63,7 +70,6 @@ void PC_bsf_Init(bool* success) {
 		PD_b[i] = buf;
 	}
 
-	PD_c.resize(PD_n);
 	for (int j = 0; j < PD_n; j++) {
 		if (fscanf(stream, "%f", &buf) == 0) { 
 			if (BSF_sv_mpiRank == BSF_sv_mpiMaster) 
@@ -90,7 +96,6 @@ void PC_bsf_Init(bool* success) {
 		return;
 	}
 
-	PD_z.resize(PD_n);
 	for (int i = 0; i < PD_n; i++) {
 		if (fscanf(stream, "%f", &buf) == 0) {
 			if (BSF_sv_mpiRank == BSF_sv_mpiMaster)
@@ -113,16 +118,14 @@ void PC_bsf_SetListSize(int* listSize) {
 }
 
 void PC_bsf_CopyParameter(PT_bsf_parameter_T parameterIn, PT_bsf_parameter_T* parameterOutP) {
-	parameterOutP->pointNo = parameterIn.pointNo;
-	for (int i = 0; i < PD_n; i++)
-		parameterOutP->receptivePoint[i] = parameterIn.receptivePoint[i];
+	parameterOutP->k = parameterIn.k;
 }
 
 void PC_bsf_MapF(PT_bsf_mapElem_T* mapElem, PT_bsf_reduceElem_T* reduceElem, int* success) {	// For Job 0
-	PT_point_T g = floatsToValarray(BSF_sv_parameter.receptivePoint);
+	G(BSF_sv_parameter, PD_g);
 	int i = mapElem->inequalityNo;
-	if((PD_A[i] * PD_c).sum() > 0 && isInnerPoint(g))
-		reduceElem->objectiveDistance = targetDistance(targetProjection(i, g));
+	if (dotproduct_Vector(PD_A[i], PD_c) > 0 && isInnerPoint(PD_g))
+		reduceElem->objectiveDistance = objectiveDistance(i, PD_g);
 	else
 		reduceElem->objectiveDistance = FLT_MAX;
 }
@@ -169,14 +172,14 @@ void PC_bsf_ProcessResults(		// For Job 0
 	int* nextJob,
 	bool* exit 
 ) {
-	PT_vector_T g = floatsToValarray(parameter->receptivePoint);
-	PD_I.push_back(make_pair(g, reduceResult->objectiveDistance));
-	do {
-		parameter->pointNo += 1;
-		G(parameter);
-	} while (parameter->pointNo < PD_K && parameterOutOfRetina(parameter));
+#ifdef PP_FILES_OUT
+	for (int i = 0; i < PD_n; i++)
+		PD_I[parameter->k][i] = PD_g[i];
+	PD_I[parameter->k][PD_n] = reduceResult->objectiveDistance;
+#endif
+	parameter->k += 1;
 
-	*exit = (parameter->pointNo >= PD_K);
+	*exit = (parameter->k >= PD_K); // Possible overfilling!!! Needed type for superlong integers.
 }
 
 void PC_bsf_ProcessResults_1(	// For Job 1	
@@ -246,14 +249,11 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 void PC_bsf_IterOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_bsf_parameter_T parameter,
 	double elapsedTime, int jobCase) {	// For Job 0
 	cout << "------------------ " << BSF_sv_iterCounter << " ------------------" << endl;
-	cout << "Point number:\t" << parameter.pointNo << endl;
-	cout << "Point coordinates:\t";
-	copy(parameter.receptivePoint, parameter.receptivePoint + PD_n, ostream_iterator<PT_float_T>(cout, " "));
-	cout << endl;
+	cout << "Point number:\t" << parameter.k << endl;
 	cout << "Z coordinates:\t";
-	print_Point(PD_z);
+	print_Vector(PD_z);
 	cout << endl;
-	cout << "Field distance:\t" << sqrt(pow(floatsToValarray(parameter.receptivePoint) - PD_z, 2.0f).sum()) << endl;
+	//cout << "Field distance:\t" << sqrt(pow(floatsToValarray(parameter.receptivePoint) - PD_z, 2.0f).sum()) << endl;
 	cout << "Receptive field rank:\t" << PP_ETA * PP_DELTA << endl;
 //	system("pause");
 }
@@ -283,13 +283,14 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	double t) {	// For Job 0
 	FILE* stream;
 	const char* fileName;
-	int m = (int)PD_I.size();
+	int m = PP_MAX_K;
 	int n = PD_n;
 
 	cout << "=============================================" << endl;
 	cout << "Time: " << t << endl;
 	cout << "Iterations: " << BSF_sv_iterCounter << endl;
 
+#ifdef PP_FILES_OUT
 	//--------------- Output results -----------------//
 	PD_outFile = PP_PATH;
 	PD_outFile += PP_OUT_FILE;
@@ -301,14 +302,13 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 		return;
 	}
 	fprintf(stream, "%d\n", m);
-
 	for (int i = 0; i < m; i++) {
-		fprintf(stream, "%.4f\n", PD_I[i].second);
+		fprintf(stream, "%.4f\n", PD_I[i][PD_n]);
 	}
 	fclose(stream);
 	cout << "Image is saved into file '" << fileName << "'." << endl;
 	cout << "-----------------------------------" << endl;
-#ifdef PP_PICTURE_OUT
+
 	//-------------- Output Coordinates -------------//
 	PD_outFile = PP_PATH;
 	PD_outFile += PP_PICTURE_FILE;
@@ -324,8 +324,8 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 
 	for (int i = 0; i < m; i++) {
 		for(int j = 0; j < n; j++)
-			fprintf(stream, "%.4f\t", PD_I[i].first[j]);
-		fprintf(stream, "%.4f\n", PD_I[i].second);
+			fprintf(stream, "%.4f\t", PD_I[i][j]);
+		fprintf(stream, "%.4f\n", PD_I[i][n]);
 	}
 	fclose(stream);
 	cout << "Coordinates are saved into file '" << fileName << "'." << endl;
@@ -350,15 +350,7 @@ void PC_bsf_ProblemOutput_3(PT_bsf_reduceElem_T_3* reduceResult, int reduceCount
 }
 
 void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
-	parameter->pointNo = 0;
-	cout << "pointNo = " << parameter->pointNo << endl;
-	G(parameter);
-	cout << "After first G()" << endl;
-	while (parameterOutOfRetina(parameter)) {
-		cout << "pointNo = " << parameter->pointNo << endl;
-		parameter->pointNo += 1;
-		G(parameter);
-	}
+	parameter->k = 0;
 }
 
 void PC_bsf_SetMapListElem(PT_bsf_mapElem_T* elem, int i) {
@@ -377,22 +369,17 @@ void PC_bsfAssignParameter(PT_bsf_parameter_T parameter) { PC_bsf_CopyParameter(
 void PC_bsfAssignSublistLength(int value) { BSF_sv_sublistLength = value; }
 
 //----------------------------- User functions -----------------------------
-inline PT_point_T floatsToValarray(PT_float_T arr[]) {
-	PT_vector_T result(PD_n);
-	for (int i = 0; i < PD_n; i++)
-		result[i] = arr[i];
-	return result;
-}
 inline void basis_Init() {
 	//PD_c
 	int j;
 	PT_float_T length;
 	PT_float_T tailSum;
-	PT_vector_T PD_c2 = pow(PD_c, 2.0f);
-	PD_E.resize(PD_n);
-	PD_E[0] = PD_c;
+	PT_vector_T PD_c2;
+	copy_Vector(PD_c2, PD_c);
+	square_Vector(PD_c2);
+
+	copy_Vector(PD_E[0], PD_c);
 	for (int i = 1; i < PD_n; i++) {
-		PD_E[i].resize(PD_n);
 		for(j = 0; j < i; j++)	PD_E[i][j] = 0;
 		tailSum = vector_Sum(PD_c2, i);
 		if (tailSum == 0) {
@@ -406,79 +393,105 @@ inline void basis_Init() {
 			for (; j < PD_n; j++) { PD_E[i][j] = 0; }
 		}
 		else {
-			PD_E[i][i - 1] = (PT_float_T)((-1. * tailSum) / PD_c[i - 1]); //Possible division by zero!
+			PD_E[i][i - 1] = (PT_float_T)((-1. * tailSum) / PD_c[i - 1]);
 			for (; j < PD_n; j++) { PD_E[i][j] = PD_c[j]; }
 		}
-		length = sqrt(pow(PD_E[i], 2.0f).sum());
-		PD_E[i] /= length;
+		length = sqrt(dotproduct_Vector(PD_E[i], PD_E[i]));
+		divide_Vector(PD_E[i], length);
 	}
-}
-inline void print_Point(PT_point_T x) {
-	int N = (int)x.size();
-	for (int i = 0; i < N; i++)
-		cout << x[i] << " ";
 }
 inline void print_Vector(PT_vector_T x) {
-	int N = (int)x.size();
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < PD_n; i++)
 		cout << x[i] << " ";
 }
-inline void basis_Print() {
-	for (int i = 0; i < (int)PD_E.size(); i++) {
-		print_Vector(PD_E[i]);
-		cout << endl;
+inline void add_Vector(PT_vector_T To, PT_vector_T From) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] += From[i];
+}
+inline void subtract_Vector(PT_vector_T To, PT_vector_T From) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] -= From[i];
+}
+inline void copy_Vector(PT_vector_T To, PT_vector_T From) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] = From[i];
+}
+inline void multiply_Vector(PT_vector_T To, PT_float_T C) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] *= C;
+}
+inline PT_float_T dotproduct_Vector(PT_vector_T x, PT_vector_T y) {
+	PT_float_T result = 0.0f;
+	for (int i = 0; i < PD_n; i++) {
+		result += x[i] * y[i];
 	}
+	return result;
+}
+inline void divide_Vector(PT_vector_T To, PT_float_T C) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] /= C;
+}
+inline void square_Vector(PT_vector_T To) {
+	for (int i = 0; i < PD_n; i++)
+		To[i] *= To[i];
 }
 inline PT_float_T vector_Sum(PT_vector_T v, int start) {
 	PT_float_T result = 0.0f;
-	int N = (int)v.size();
-	for (int i = start; i < N; i++) {
+	for (int i = start; i < PD_n; i++) {
 		result += v[i];
 	}
 	return result;
 }
-inline void G(PT_bsf_parameter_T *parameter) {
-	PT_point_T tempPoint;
-	PT_integer_T dimensionPointsNumber;
-	vector<PT_integer_T> i;
-	int pointNo = parameter->pointNo;
+inline void basis_Print() {
+	for (int i = 0; i < PD_n - 1; i++) {
+		print_Vector(PD_E[i]);
+		cout << endl;
+	}
+}
 
-	i.resize(PD_n - 1);
-	cout << "Inside G. Num of E vectors = " << i.size() << endl;
+inline void G(PT_bsf_parameter_T parameter, PT_vector_T out) {
+	PT_vector_T tempPoint;
+	PT_vector_T coordinate;
+	PT_integer_T dimensionPointsNumber;
+	PT_integer_T i[PP_MAX_N];
+	int pointNo = parameter.k;
+
 	for (int j = PD_n - 1; j > 0; j--) {
-		cout << "j = " << j << endl;
 		dimensionPointsNumber = (PT_integer_T)powf(2 * PP_ETA + 1, (PT_float_T)j - 1); //Possible overfilling!
 		i[j - 1] = pointNo / dimensionPointsNumber;
 		pointNo = pointNo % dimensionPointsNumber;
 	}
-	tempPoint = PD_z;
-	cout << "Inside G. tempPoint size: " << tempPoint.size() << endl;
-	cout << "Inside G. PD_z size: " << PD_z.size() << endl;
+	copy_Vector(tempPoint, PD_z);
 	for (int j = 1; j < PD_n; j++) {
-		tempPoint += PD_E[j] * (float)(i[j - 1] * PP_DELTA - PP_ETA * PP_DELTA);
+		copy_Vector(coordinate, PD_E[j]);
+		multiply_Vector(coordinate, (PT_float_T)(i[j - 1] * PP_DELTA - PP_ETA * PP_DELTA));
+		add_Vector(tempPoint, coordinate);
 	}
 	for(int i = 0; i < PD_n; i++)
-		parameter->receptivePoint[i] = tempPoint[i];
+		out[i] = tempPoint[i];
 };
-inline bool parameterOutOfRetina(PT_bsf_parameter_T* parameter) {
-	PT_float_T distanceToZ = sqrt(pow(floatsToValarray(parameter->receptivePoint) - PD_z, 2.0f).sum());
-	return distanceToZ > PP_ETA * PP_DELTA;
-}
 
-inline bool isInnerPoint(PT_point_T point) {
+inline bool isInnerPoint(PT_vector_T point) {
 	bool result = true;
 	for (int i = 0; i < PD_m; i++)
-		if ((PD_A[i] * point).sum() > PD_b[i])
+		if (dotproduct_Vector(PD_A[i], point) > PD_b[i])
 			result = false;
 	return result;
 }
 
-// Projection of receptive field point to recessive subspace gamma_i(x)
-inline PT_point_T targetProjection(int i, PT_point_T x) {
-	return x - (((PD_A[i] * x).sum() - PD_b[i]) / (PD_A[i] * PD_c).sum()) * PD_c;
-}
+inline PT_float_T objectiveDistance(int i, PT_vector_T g) {
+	PT_vector_T projection;
+	PT_vector_T temp;
 
-// Distance from projection to retina rho_c(x)
-inline PT_float_T targetDistance(PT_point_T x) {
-	return (PD_c * (PD_z - x)).sum() / sqrt(pow(PD_c, 2.0f).sum());
+	//------------ Computing target projection gamma_i ----------//
+	copy_Vector(temp, PD_c);
+	multiply_Vector(temp, (PT_float_T)((dotproduct_Vector(PD_A[i], g) - PD_b[i]) / dotproduct_Vector(PD_A[i], PD_c)));
+	copy_Vector(projection, g);
+	subtract_Vector(projection, temp);
+
+	//------------ Computing target distance rho_c -------------//
+	copy_Vector(temp, PD_z);
+	subtract_Vector(temp, projection);
+
+	return (PT_float_T)(dotproduct_Vector(PD_c, temp) / sqrt(dotproduct_Vector(PD_c, PD_c)));
 }

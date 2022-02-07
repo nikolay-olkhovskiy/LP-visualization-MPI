@@ -19,10 +19,12 @@ static PT_matrix_T PD_A;	// Matrix of the system Ax <= b
 static PT_column_T PD_b;	// Column of the constant terms of the system Ax <= b
 static PT_vector_T PD_c;	// Coefficients of the objective function <c,x>
 static PT_matrix_T PD_E;	// Matrix of vectors e(i) forming basis othogonal to objective function
-static PT_point_T PD_g;		// Point of retina
-static PT_point_T PD_z;	// Center of retina
+static PT_vector_T PD_g;	// Point of retina
+static PT_vector_T PD_z;	// Center of retina
 
+#ifdef PP_FILES_OUT
 static PT_image_T PD_I; // Retina
+#endif
 //========================== Files ================================================
 static string PD_lppFile; /* LPP file in the following format:
 ------------ begin of file -------------

@@ -8,16 +8,20 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 #include "Problem-bsfTypes.h"	// Predefined BSF types
 #include "Problem-Types.h"		// Problem Types
 //====================== Problem Functions ===========================
-inline PT_point_T floatsToValarray(PT_float_T arr[]);
+
 inline void basis_Init();
-inline void print_Point(PT_point_T x);
 inline void print_Vector(PT_vector_T x);
-inline void basis_Print();
+inline void add_Vector(PT_vector_T To, PT_vector_T From);
+inline void subtract_Vector(PT_vector_T To, PT_vector_T From);
+inline void copy_Vector(PT_vector_T To, PT_vector_T From);
+inline void multiply_Vector(PT_vector_T To, PT_float_T C);
+inline PT_float_T dotproduct_Vector(PT_vector_T x, PT_vector_T y);
+inline void divide_Vector(PT_vector_T To, PT_float_T C);
+inline void square_Vector(PT_vector_T To);
 inline PT_float_T vector_Sum(PT_vector_T v, int start);
-inline void G(PT_bsf_parameter_T* parameter);
-inline bool parameterOutOfRetina(PT_bsf_parameter_T* parameter);
+inline void basis_Print();
 
 // Helper functions for MapF implementation
-inline bool isInnerPoint(PT_point_T point);
-inline PT_point_T targetProjection(int i, PT_point_T x);
-inline PT_float_T targetDistance(PT_point_T x);
+inline void G(PT_bsf_parameter_T parameter, PT_vector_T out);
+inline bool isInnerPoint(PT_vector_T point);
+inline PT_float_T objectiveDistance(int i, PT_vector_T g);

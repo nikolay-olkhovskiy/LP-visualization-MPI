@@ -24,4 +24,5 @@ inline void basis_Print();
 // Helper functions for MapF implementation
 inline void G(PT_bsf_parameter_T parameter, PT_vector_T out);
 inline bool isInnerPoint(PT_vector_T point);
-inline PT_float_T objectiveDistance(int i, PT_vector_T g);
+inline void targetProjection(int i, PT_vector_T _In, PT_vector_T _Out);
+inline PT_float_T objectiveDistance(PT_vector_T g);

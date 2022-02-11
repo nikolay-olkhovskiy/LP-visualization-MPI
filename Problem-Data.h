@@ -9,11 +9,9 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 #include "Problem-Types.h"			// Problem Parameters 
 using namespace std;
 //========================== Problem variables ====================================
-static int		PD_n;		// Space dimension
-static int		PD_m;		// Number of inequalities
-static int		PD_K;		// Number of receptive fied points // (must be < 2 147 483 647)	
-static int		PD_retina_k = 0;	// Currend number of retina point
-static int		PD_recept_k = 0;	// Currend number of point of receptive field
+static int				PD_n;		// Space dimension
+static int				PD_m;		// Number of inequalities
+static PT_integer_T		PD_K;		// Number of receptive fied points
 //========================== Problem data structures ==============================
 static PT_matrix_T PD_A;	// Matrix of the system Ax <= b
 static PT_column_T PD_b;	// Column of the constant terms of the system Ax <= b

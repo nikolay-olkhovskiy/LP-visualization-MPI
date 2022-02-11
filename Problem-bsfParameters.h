@@ -8,8 +8,8 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 ==============================================================================*/
 
 //=========================== Skeleton Parameters =========================
-#define PP_BSF_MAX_MPI_SIZE 4		// Defines the maximum possible number of MPI processes
-#define PP_BSF_PRECISION 4			// Sets the decimal precision to be used to format floating-point values on output operations
+#define PP_BSF_MAX_MPI_SIZE 100		// Defines the maximum possible number of MPI processes
+#define PP_BSF_PRECISION 7			// Sets the decimal precision to be used to format floating-point values on output operations
 //#define PP_BSF_ITER_OUTPUT		// If it is defined then Iteration Output is performed
 #define PP_BSF_TRACE_COUNT 1		// Each PP_BSF_TRACE_COUNT-th iteration to be outputted
 #define PP_BSF_MAX_JOB_CASE 0		// Defines the maximum number of activities (jobs) in workflow minus 1

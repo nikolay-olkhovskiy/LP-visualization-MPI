@@ -10,7 +10,7 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 #include "Problem-Types.h"		// Problem Types 
 //=========================== BSF Types =========================
 struct PT_bsf_parameter_T {		// Order parameters
-	int k;						// Number of receptive point
+	PT_integer_T k;						// Number of receptive point
 };
 
 struct PT_bsf_mapElem_T {		// Type of map-list elements

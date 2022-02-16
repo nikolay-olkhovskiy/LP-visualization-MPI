@@ -16,7 +16,11 @@ typedef PT_float_T					PT_vector_T[PP_MAX_N];
 typedef PT_vector_T					PT_matrix_T[PP_MAX_M];
 //typedef PT_float_T				PT_point_T[PP_MAX_N];
 typedef PT_float_T					PT_column_T[PP_MAX_M];
-#ifdef PP_FILES_OUT
-//typedef PT_float_T					PT_image_T[PP_MAX_K][PP_MAX_N + 1];
-typedef PT_float_T**				PT_image_T;
+
+#ifdef PP_IMAGE_OUT
+typedef PT_float_T*					PT_image_T;
+#endif
+
+#ifdef PP_RECEPTIVE_FIELD_OUT
+typedef PT_float_T**				PT_field_T;
 #endif

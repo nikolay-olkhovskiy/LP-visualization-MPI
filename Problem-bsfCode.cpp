@@ -113,8 +113,13 @@ void PC_bsf_Init(bool* success) {
 	PD_K = 1;
 	for (int i = 0; i < PD_n - 1; i++)
 		PD_K *= (2 * PP_ETA + 1);
-#ifdef PP_FILES_OUT
-	PD_I = new PT_float_T* [PD_K];
+
+#ifdef PP_IMAGE_OUT
+	PD_I = new PT_float_T[PD_K];
+#endif
+
+#ifdef PP_RECEPTIVE_FIELD_OUT
+	PD_field = new PT_float_T* [PD_K];
 #endif
 }
 
@@ -180,12 +185,14 @@ void PC_bsf_ProcessResults(		// For Job 0
 	int* nextJob,
 	bool* exit 
 ) {
-#ifdef PP_FILES_OUT
-	PD_I[parameter->k] = new PT_float_T[PD_n + 1];
 	G(*parameter, PD_g);
+#ifdef PP_IMAGE_OUT
+	PD_I[parameter->k] = reduceResult->objectiveDistance;
+#endif
+#ifdef PP_RECEPTIVE_FIELD_OUT
+	PD_field[parameter->k] = new PT_float_T[PD_n];
 	for (int i = 0; i < PD_n; i++)
-		PD_I[parameter->k][i] = PD_g[i];
-	PD_I[parameter->k][PD_n] = reduceResult->objectiveDistance;
+		PD_field[parameter->k][i] = PD_g[i];
 #endif
 	parameter->k += 1;
 
@@ -231,7 +238,7 @@ void PC_bsf_JobDispatcher(
 }
 
 void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
-	cout << "=================================================== Problem parameters ====================================================" << endl;
+	cout << "============================================== Problem parameters ===============================================" << endl;
 	cout << "Number of Workers: " << BSF_sv_numOfWorkers << endl;
 #ifdef PP_BSF_OMP
 #ifdef PP_BSF_NUM_THREADS
@@ -247,9 +254,14 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 	cout << "Receptive field rank: " << PP_ETA << endl;
 	cout << "Receptive field density: " << PP_DELTA << endl;
 	cout << "Maximum number of points: " << PD_K << endl;
-	cout << "Receptive field coordinates: ";
+	cout << "Receptive field coordinates: " << endl;
 	for (int i = 0; i < PD_n; i++) {
 		cout << PD_z[i] << " ";
+	}
+	cout << endl;
+	cout << "Objective function coordinates: " << endl;
+	for (int i = 0; i < PD_n; i++) {
+		cout << PD_c[i] << " ";
 	}
 	cout << endl;
 	basis_Print();
@@ -294,7 +306,7 @@ void PC_bsf_IterOutput_3(PT_bsf_reduceElem_T_3* reduceResult, int reduceCounter,
 
 void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_bsf_parameter_T parameter,
 	double t) {	// For Job 0
-#ifdef PP_FILES_OUT
+#if defined PP_IMAGE_OUT || defined PP_RECEPTIVE_FIELD_OUT
 	FILE* stream;
 	const char* fileName;
 #endif
@@ -305,10 +317,10 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	cout << "Time: " << t << endl;
 	cout << "Iterations: " << BSF_sv_iterCounter << endl;
 
-#ifdef PP_FILES_OUT
+#ifdef PP_IMAGE_OUT
 	//--------------- Output results -----------------//
 	PD_outFile = PP_PATH;
-	PD_outFile += PP_OUT_FILE;
+	PD_outFile += PP_IMAGE_FILE;
 	fileName = PD_outFile.c_str();
 	cout << "-----------------------------------" << endl;
 	stream = fopen(fileName, "w");
@@ -318,17 +330,20 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	}
 	fprintf(stream, "%llu\n", k);
 	for (PT_integer_T i = 0; i < k; i++) {
-		fprintf(stream, "%.4f\n", PD_I[i][PD_n]);
+		fprintf(stream, "%.4f\n", PD_I[i]);
 	}
 	fclose(stream);
 	cout << "Image is saved into file '" << fileName << "'." << endl;
 	cout << "-----------------------------------" << endl;
-
+	
+	delete[] PD_I;
+#endif
+#ifdef PP_RECEPTIVE_FIELD_OUT
 	//-------------- Output Coordinates -------------//
 	PD_outFile = PP_PATH;
-	PD_outFile += PP_PICTURE_FILE;
+	PD_outFile += PP_RECEPTIVE_FIELD_FILE;
 	fileName = PD_outFile.c_str();
-	
+
 	cout << "-----------------------------------" << endl;
 	stream = fopen(fileName, "w");
 	if (stream == NULL) {
@@ -338,18 +353,18 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 	fprintf(stream, "%llu\t%d\n", k, n);
 
 	for (PT_integer_T i = 0; i < k; i++) {
-		for(int j = 0; j < n; j++)
-			fprintf(stream, "%.4f\t", PD_I[i][j]);
-		fprintf(stream, "%.4f\n", PD_I[i][n]);
+		for (int j = 0; j < n; j++)
+			fprintf(stream, "%.4f\t", PD_field[i][j]);
+		fprintf(stream, "\n");
 
-		delete[] PD_I[i];
+		delete[] PD_field[i];
 	}
-	delete[] PD_I;
+	delete[] PD_field;
 	fclose(stream);
 	cout << "Coordinates are saved into file '" << fileName << "'." << endl;
 	cout << "-----------------------------------" << endl;
 #endif
-//	system("pause");
+	//	system("pause");
 }
 
 void PC_bsf_ProblemOutput_1(PT_bsf_reduceElem_T_1* reduceResult, int reduceCounter, PT_bsf_parameter_T parameter,

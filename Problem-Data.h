@@ -20,8 +20,12 @@ static PT_matrix_T PD_E;	// Matrix of vectors e(i) forming basis othogonal to ob
 static PT_vector_T PD_g;	// Point of retina
 static PT_vector_T PD_z;	// Center of retina
 
-#ifdef PP_FILES_OUT
+#ifdef PP_IMAGE_OUT
 static PT_image_T PD_I; // Retina
+#endif
+
+#ifdef PP_RECEPTIVE_FIELD_OUT
+static PT_field_T PD_field;
 #endif
 //========================== Files ================================================
 static string PD_lppFile; /* LPP file in the following format:

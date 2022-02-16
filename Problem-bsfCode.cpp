@@ -249,7 +249,7 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 #else
 	cout << "OpenMP is turned off!" << endl;
 #endif // PP_BSF_OMP
-	cout << "Dimensions: " << PD_n << endl;
+	cout << "Dimensions: " << PD_n << ", max = " << log(PP_MAX_K) / log(2 * PP_ETA + 1) << endl;
 	cout << "Number of inequalities: " << PD_m << endl;
 	cout << "Receptive field rank: " << PP_ETA << endl;
 	cout << "Receptive field density: " << PP_DELTA << endl;
@@ -328,7 +328,7 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 		cout << "Failure of opening file " << fileName << "!\n";
 		return;
 	}
-	fprintf(stream, "%llu\n", k);
+	fprintf(stream, "%d\n", k);
 	for (PT_integer_T i = 0; i < k; i++) {
 		fprintf(stream, "%.4f\n", PD_I[i]);
 	}
@@ -350,7 +350,7 @@ void PC_bsf_ProblemOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, 
 		cout << "Failure of opening file " << fileName << "!\n";
 		return;
 	}
-	fprintf(stream, "%llu\t%d\n", k, n);
+	fprintf(stream, "%d\t%d\n", k, n);
 
 	for (PT_integer_T i = 0; i < k; i++) {
 		for (int j = 0; j < n; j++)

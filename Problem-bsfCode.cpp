@@ -187,11 +187,11 @@ void PC_bsf_ProcessResults(		// For Job 0
 	int* nextJob,
 	bool* exit 
 ) {
-	G(*parameter, PD_g);
 #ifdef PP_IMAGE_OUT
 	PD_I[parameter->k] = reduceResult->objectiveDistance;
 #endif
 #ifdef PP_RECEPTIVE_FIELD_OUT
+	G(*parameter, PD_g);
 	PD_field[parameter->k] = new PT_float_T[PD_n];
 	for (int i = 0; i < PD_n; i++)
 		PD_field[parameter->k][i] = PD_g[i];

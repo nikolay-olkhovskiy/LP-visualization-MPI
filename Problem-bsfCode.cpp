@@ -79,11 +79,12 @@ void PC_bsf_Init(bool* success) {
 			return; 
 		}
 		PD_c[j] = buf;
+		PD_z[j] = buf + 1.;
 	}
 	fclose(stream);
 
 	// ------------- Load target point coordinates -------------------
-
+/*
 	PD_lppFile = PP_PATH;
 	PD_lppFile += PP_INPUT_FILE;
 	lppFile = PD_lppFile.c_str();
@@ -108,6 +109,7 @@ void PC_bsf_Init(bool* success) {
 	}
 
 	fclose(stream);
+*/
 	basis_Init();
 
 	PD_K = 1;

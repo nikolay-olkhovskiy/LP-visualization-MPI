@@ -10,14 +10,14 @@ This source code is developed based on the BSF skeleton (https://github.com/leon
 
 //=========================== Problem Parameters =========================
 #define PP_N		3									// Number of dimensions
-#define PP_MAX_M	250									// Maximal  number of inequalities
+#define PP_MAX_M	25000								// Maximal  number of inequalities
 #define PP_MAX_N	120									// Maximal  space dimension
 #define PP_ETA		2									// Rank of receptive field 		
 #define PP_DELTA	1									// Density of receptive field
 #define PP_MAX_K	2147483647	            			// Maximal number of receptive field points
 //#define PP_PATH		"C:/Users/Akella/source/repos/nikolay-olkhovskiy/LP-visualization/"	// Working directory of the application
 #define PP_PATH		"/home/olkhovskiina/input/"	// Working directory of the application
-#define PP_LPP_FILE	"lpp13_10000.txt"	// File with initial data
+#define PP_LPP_FILE	"lpp11_1000.txt"	// File with initial data
 //#define PP_LPP_FILE	"python/lpp7_100.txt"
 #define PP_IMAGE_FILE "image.txt"		// File with output results
 #define PP_INPUT_FILE	"point.txt"		// File with coordinates of target point

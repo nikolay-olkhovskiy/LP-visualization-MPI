@@ -277,6 +277,7 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 void PC_bsf_IterOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_bsf_parameter_T parameter,
 	double elapsedTime, int jobCase) {	// For Job 0
 	cout << "------------------ " << BSF_sv_iterCounter << " ------------------" << endl;
+	cout << "Time:\t" << elapsedTime << endl;
 	cout << "Point number:\t" << parameter.k << endl;
 	cout << "Z coordinates:\t";
 	print_Vector(PD_z);
